@@ -1,4 +1,4 @@
-export const APP_VERSION = '1.4';
+export const APP_VERSION = '1.5';
 
 export interface ChangelogEntry {
   version: string;
@@ -8,6 +8,16 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.5',
+    date: '27 mars 2026',
+    title: 'Améliorations UX & heures supplémentaires',
+    items: [
+      { emoji: '🐙', text: 'Lien GitHub ajouté dans le pied de page — accès direct au dépôt source.' },
+      { emoji: '📅', text: 'Nouvelle option dans les paramètres : choisissez la période de référence pour la détection automatique des heures supplémentaires (semaine, mois, trimestre, semestre, année ou à vie).' },
+      { emoji: '🕐', text: "Les heures supplémentaires sont maintenant affichées dans un format lisible : « 1 h 30 min » au lieu d'un nombre brut de minutes." },
+    ],
+  },
   {
     version: '1.4',
     date: '10 mars 2026',

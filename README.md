@@ -2,7 +2,7 @@
 
 Application de suivi du temps de travail en self-hosted, construite avec React + TypeScript (frontend) et PHP + MySQL (backend).
 
-![Version](https://img.shields.io/badge/version-1.4-blue)
+![Version](https://img.shields.io/badge/version-1.5-blue)
 ![Stack](https://img.shields.io/badge/stack-React%20%2B%20PHP%20%2B%20MySQL-green)
 
 ---
@@ -32,13 +32,14 @@ Application de suivi du temps de travail en self-hosted, construite avec React +
 - Modification du nom d'utilisateur et du mot de passe
 - Mode sombre / clair (persisté en base)
 - Configuration : heures de travail requises, durée de pause déjeuner, seuil de départ (%)
-- Gestion des heures supplémentaires (compensation)
+- Gestion des heures supplémentaires (compensation, période de calcul configurable)
 - Export des données (JSON / CSV) et import
 - Suppression complète du compte (cascade sur toutes les données)
 
 ### Autres
 - Interface 100 % responsive (mobile inclus)
 - Changelog intégré avec notification des nouvelles versions
+- Lien GitHub dans le pied de page
 - Authentification par session PHP sécurisée (cookie httpOnly)
 
 ---
@@ -203,6 +204,12 @@ display_errors = Off
 ---
 
 ## Changelog
+
+### v1.5 — 27 mars 2026
+- Lien GitHub dans le pied de page
+- Période de calcul des heures supplémentaires configurable (semaine / mois / trimestre / semestre / année / à vie)
+- Affichage des heures supplémentaires en format lisible (« 1 h 30 min »)
+- Feedback visuel sur les boutons de sauvegarde dans les paramètres
 
 ### v1.4 — 10 mars 2026
 - Interface 100 % compatible mobile
