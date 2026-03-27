@@ -19,6 +19,7 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
   const [lunchBreak, setLunchBreak] = useState(initialPreferences?.required_lunch_break_minutes.toString() || '30');
   const [endOfDayThreshold, setEndOfDayThreshold] = useState(initialPreferences?.end_of_day_threshold ? (initialPreferences.end_of_day_threshold * 100).toString() : '80');
   const [minimumEndTime, setMinimumEndTime] = useState(initialPreferences?.minimum_end_time || '');
+  const [overtimePeriod, setOvertimePeriod] = useState<'week' | 'month' | 'quarter' | 'semester' | 'year' | 'lifetime'>(initialPreferences?.overtime_period || 'week');
   const [darkMode, setDarkMode] = useState(initialPreferences?.dark_mode || false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(initialPreferences?.notifications_enabled || false);
   const [message, setMessage] = useState('');
@@ -52,6 +53,7 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
       setLunchBreak(data.required_lunch_break_minutes.toString());
       setEndOfDayThreshold(data.end_of_day_threshold ? (data.end_of_day_threshold * 100).toString() : '80');
       setMinimumEndTime(data.minimum_end_time || '');
+      setOvertimePeriod(data.overtime_period || 'week');
     }
   };
 
@@ -144,6 +146,7 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
         required_lunch_break_minutes: minutes,
         end_of_day_threshold: threshold,
         minimum_end_time: minimumEndTime.trim() || null,
+        overtime_period: overtimePeriod,
       })
       .eq('user_id', user.id);
 
@@ -476,6 +479,26 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                   Vous ne pouvez pas partir avant cette heure. La pause déjeuner recommandée s'adapte automatiquement pour atteindre cet objectif.
                   Laisser vide pour désactiver.
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-100 mb-2">
+                  Période de calcul des heures supplémentaires
+                </label>
+                <select
+                  value={overtimePeriod}
+                  onChange={(e) => setOvertimePeriod(e.target.value as typeof overtimePeriod)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-4 focus:ring-purple-500/20 transition-all outline-none text-base"
+                >
+                  <option value="week">Semaine</option>
+                  <option value="month">Mois</option>
+                  <option value="quarter">Trimestre</option>
+                  <option value="semester">Semestre</option>
+                  <option value="year">Année</option>
+                  <option value="lifetime">À vie</option>
+                </select>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                  Définit sur quelle période le bouton de calcul automatique cumule les heures supplémentaires.
                 </p>
               </div>
               <button

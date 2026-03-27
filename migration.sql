@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS `user_preferences` (
   `minimum_end_time` VARCHAR(5) DEFAULT NULL,
   `use_minimum_end_time` BOOLEAN DEFAULT TRUE,
   `last_seen_version` VARCHAR(20) DEFAULT NULL,
+  `overtime_period` ENUM('week','month','quarter','semester','year','lifetime') DEFAULT 'week',
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_user_id` (`user_id`),

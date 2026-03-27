@@ -23,6 +23,7 @@ export interface UserPreferences {
   minimum_end_time: string | null;
   use_minimum_end_time: boolean;
   last_seen_version: string | null;
+  overtime_period: 'week' | 'month' | 'quarter' | 'semester' | 'year' | 'lifetime';
   updated_at: string;
 }
 

@@ -275,18 +275,43 @@ export function TimeTracker() {
     setIsDetecting(true);
 
     const today = new Date();
-    const dayOfWeek = today.getDay();
-    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-    const monday = new Date(today);
-    monday.setDate(today.getDate() + diff);
-    monday.setHours(0, 0, 0, 0);
+    const period = preferences.overtime_period || 'week';
 
-    const { data } = await supabase
+    const getPeriodStart = (): string | null => {
+      const d = new Date(today);
+      if (period === 'week') {
+        const dayOfWeek = d.getDay();
+        const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+        d.setDate(d.getDate() + diff);
+      } else if (period === 'month') {
+        d.setDate(1);
+      } else if (period === 'quarter') {
+        const month = d.getMonth();
+        d.setMonth(Math.floor(month / 3) * 3, 1);
+      } else if (period === 'semester') {
+        d.setMonth(d.getMonth() < 6 ? 0 : 6, 1);
+      } else if (period === 'year') {
+        d.setMonth(0, 1);
+      } else {
+        return null; // lifetime : pas de filtre de début
+      }
+      d.setHours(0, 0, 0, 0);
+      return d.toISOString().split('T')[0];
+    };
+
+    const periodStart = getPeriodStart();
+
+    let query = supabase
       .from('work_sessions')
       .select('*')
       .eq('user_id', user.id)
-      .gte('date', monday.toISOString().split('T')[0])
       .lt('date', today.toISOString().split('T')[0]);
+
+    if (periodStart) {
+      query = query.gte('date', periodStart);
+    }
+
+    const { data } = await query;
 
     if (!data) {
       setTimeout(() => setIsDetecting(false), 800);
@@ -746,7 +771,14 @@ export function TimeTracker() {
                       ? 'text-green-600 dark:text-green-400'
                       : ''
                   }`} />
-                  Heures supplémentaires
+                  <span>
+                    Heures supplémentaires
+                    <span className="ml-1 text-xs font-normal text-gray-400 dark:text-gray-500">
+                      ({
+                        { week: 'semaine', month: 'mois', quarter: 'trimestre', semester: 'semestre', year: 'année', lifetime: 'à vie' }[preferences?.overtime_period || 'week']
+                      })
+                    </span>
+                  </span>
                 </label>
                 <div className="flex items-center gap-2">
                   <input

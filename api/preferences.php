@@ -70,11 +70,17 @@ switch ($action) {
             json_error('Aucune donnée à mettre à jour');
         }
 
+        $validPeriods = ['week', 'month', 'quarter', 'semester', 'year', 'lifetime'];
+        if (isset($data['overtime_period']) && !in_array($data['overtime_period'], $validPeriods, true)) {
+            json_error('Valeur overtime_period invalide', 400);
+        }
+
         $allowed = [
             'dark_mode', 'notifications_enabled', 'required_work_hours',
             'required_lunch_break_minutes', 'end_of_day_threshold',
             'weekly_overtime_minutes', 'use_overtime_compensation',
             'minimum_end_time', 'use_minimum_end_time', 'last_seen_version',
+            'overtime_period',
         ];
         $bools = [
             'dark_mode', 'notifications_enabled',
