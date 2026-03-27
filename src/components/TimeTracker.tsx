@@ -240,6 +240,17 @@ export function TimeTracker() {
 
     const trimmed = input.trim().replace(',', '.');
 
+    // Format "X h XX min" ou "X h"
+    const hMinMatch = trimmed.match(/^(\d+)\s*h\s*(\d+)\s*min$/i);
+    if (hMinMatch) return parseInt(hMinMatch[1]) * 60 + parseInt(hMinMatch[2]);
+
+    const hOnlyMatch = trimmed.match(/^(\d+)\s*h$/i);
+    if (hOnlyMatch) return parseInt(hOnlyMatch[1]) * 60;
+
+    // Format "XX min"
+    const minOnlyMatch = trimmed.match(/^(\d+)\s*min$/i);
+    if (minOnlyMatch) return parseInt(minOnlyMatch[1]);
+
     if (trimmed.endsWith('h')) {
       const hours = parseFloat(trimmed.slice(0, -1));
       return Math.round(hours * 60);
@@ -253,6 +264,15 @@ export function TimeTracker() {
     }
 
     return Math.round(value);
+  };
+
+  const formatOvertimeMinutes = (minutes: number): string => {
+    if (minutes <= 0) return '0 min';
+    const h = Math.floor(minutes / 60);
+    const m = Math.round(minutes % 60);
+    if (h === 0) return `${m} min`;
+    if (m === 0) return `${h} h`;
+    return `${h} h ${String(m).padStart(2, '0')} min`;
   };
 
   const handleOvertimeSave = async () => {
@@ -332,7 +352,7 @@ export function TimeTracker() {
     const expectedMinutes = daysWorked * preferences.required_work_hours * 60;
     const overtimeMinutes = Math.max(0, totalMinutes - expectedMinutes);
 
-    setOvertimeInput(Math.round(overtimeMinutes).toString());
+    setOvertimeInput(formatOvertimeMinutes(Math.round(overtimeMinutes)));
     setTimeout(() => setIsDetecting(false), 800);
   };
 
@@ -786,7 +806,7 @@ export function TimeTracker() {
                     value={overtimeInput}
                     onChange={(e) => setOvertimeInput(e.target.value)}
                     onBlur={handleOvertimeSave}
-                    placeholder="Ex: 45 ou 0.75h"
+                    placeholder="Ex: 1 h 30 min ou 45 min"
                     className="flex-1 min-w-0 px-3 sm:px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none text-base"
                   />
                   <button
