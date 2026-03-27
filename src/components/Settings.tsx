@@ -24,6 +24,12 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
   const [notificationsEnabled, setNotificationsEnabled] = useState(initialPreferences?.notifications_enabled || false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [savedSection, setSavedSection] = useState<string | null>(null);
+
+  const showSaved = (section: string) => {
+    setSavedSection(section);
+    setTimeout(() => setSavedSection(null), 2000);
+  };
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
   const [importLoading, setImportLoading] = useState(false);
@@ -90,7 +96,7 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
       return;
     }
 
-    setMessage("Nom d'utilisateur mis à jour avec succès");
+    showSaved('username');
     setNewUsername('');
   };
 
@@ -112,7 +118,7 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
       return;
     }
 
-    setMessage('Mot de passe mis à jour avec succès');
+    showSaved('password');
     setNewPassword('');
     setConfirmPassword('');
   };
@@ -155,7 +161,7 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
       return;
     }
 
-    setMessage('Préférences mises à jour avec succès');
+    showSaved('work');
     await loadPreferences();
   };
 
@@ -378,9 +384,13 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
               />
               <button
                 onClick={updateUsername}
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all"
+                className={`w-full font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 ${
+                  savedSection === 'username'
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'
+                    : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white'
+                }`}
               >
-                Mettre à jour le nom d'utilisateur
+                {savedSection === 'username' ? <><CheckCircle className="w-4 h-4" /> Sauvegardé !</> : "Mettre à jour le nom d'utilisateur"}
               </button>
             </div>
           </div>
@@ -407,9 +417,13 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
               />
               <button
                 onClick={updatePassword}
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all"
+                className={`w-full font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 ${
+                  savedSection === 'password'
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'
+                    : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white'
+                }`}
               >
-                Mettre à jour le mot de passe
+                {savedSection === 'password' ? <><CheckCircle className="w-4 h-4" /> Sauvegardé !</> : 'Mettre à jour le mot de passe'}
               </button>
             </div>
           </div>
@@ -503,9 +517,13 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
               </div>
               <button
                 onClick={updateWorkPreferences}
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all"
+                className={`w-full font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 ${
+                  savedSection === 'work'
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'
+                    : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white'
+                }`}
               >
-                Mettre à jour les préférences
+                {savedSection === 'work' ? <><CheckCircle className="w-4 h-4" /> Sauvegardé !</> : 'Mettre à jour les préférences'}
               </button>
             </div>
           </div>
