@@ -38,3 +38,6 @@ data_migration/*.json
 
 # Ancienne stack Supabase (historique, plus utilisée)
 supabase/
+
+# Notes personnelles
+notes/
