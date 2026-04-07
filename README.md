@@ -2,7 +2,7 @@
 
 Application de suivi du temps de travail en self-hosted, construite avec React + TypeScript (frontend) et PHP + MySQL (backend).
 
-![Version](https://img.shields.io/badge/version-1.5-blue)
+![Version](https://img.shields.io/badge/version-1.6-blue)
 ![Stack](https://img.shields.io/badge/stack-React%20%2B%20PHP%20%2B%20MySQL-green)
 
 ---
@@ -204,6 +204,9 @@ display_errors = Off
 ---
 
 ## Changelog
+
+### v1.6 — 7 avril 2026
+- Option « Se souvenir de moi » sur l'écran de connexion : identifiants mémorisés localement pour une reconnexion en un clic
 
 ### v1.5 — 27 mars 2026
 - Lien GitHub dans le pied de page

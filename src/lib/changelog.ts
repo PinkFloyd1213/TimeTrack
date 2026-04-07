@@ -1,4 +1,4 @@
-export const APP_VERSION = '1.5';
+export const APP_VERSION = '1.6';
 
 export interface ChangelogEntry {
   version: string;
@@ -8,6 +8,14 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.6',
+    date: '7 avril 2026',
+    title: 'Connexion & confort',
+    items: [
+      { emoji: '🔑', text: "Option « Se souvenir de moi » sur l'écran de connexion : les identifiants sont mémorisés localement pour une reconnexion en un clic." },
+    ],
+  },
   {
     version: '1.5',
     date: '27 mars 2026',
