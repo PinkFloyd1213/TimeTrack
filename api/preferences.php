@@ -75,16 +75,31 @@ switch ($action) {
             json_error('Valeur overtime_period invalide', 400);
         }
 
+        $validThemeModes = ['light', 'dark', 'custom'];
+        if (isset($data['theme_mode']) && !in_array($data['theme_mode'], $validThemeModes, true)) {
+            json_error('Valeur theme_mode invalide', 400);
+        }
+
+        $hexFields = ['theme_primary', 'theme_secondary', 'theme_accent', 'theme_app_bg', 'theme_surface_bg', 'theme_text_color', 'theme_highlight_bg'];
+        foreach ($hexFields as $hf) {
+            if (isset($data[$hf]) && $data[$hf] !== null && !preg_match('/^#[0-9a-fA-F]{6}$/', $data[$hf])) {
+                json_error("Valeur $hf invalide", 400);
+            }
+        }
+
         $allowed = [
             'dark_mode', 'notifications_enabled', 'required_work_hours',
             'required_lunch_break_minutes', 'end_of_day_threshold',
             'weekly_overtime_minutes', 'use_overtime_compensation',
             'minimum_end_time', 'use_minimum_end_time', 'last_seen_version',
             'overtime_period',
+            'theme_mode', 'theme_primary', 'theme_secondary', 'theme_accent',
+            'theme_use_gradient', 'theme_app_bg', 'theme_surface_bg', 'theme_text_color', 'theme_highlight_bg',
         ];
         $bools = [
             'dark_mode', 'notifications_enabled',
             'use_overtime_compensation', 'use_minimum_end_time',
+            'theme_use_gradient',
         ];
 
         $setClauses = [];

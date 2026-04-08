@@ -10,9 +10,11 @@ export interface ChangelogEntry {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     version: '1.6',
-    date: '7 avril 2026',
-    title: 'Connexion & confort',
+    date: '8 avril 2026',
+    title: 'Thèmes & confort',
     items: [
+      { emoji: '🎨', text: "Nouveau sélecteur de thème à 3 positions (Clair / Sombre / Custom) dans les paramètres." },
+      { emoji: '🖌️', text: "Mode Custom : 12 presets prêts à l'emploi (OLED, Cosy, Mocha, Forêt, Océan, Sunset, Dracula, Nord, Solarized, Rose…) et personnalisation fine de toutes les couleurs (primaire, secondaire, accent, fond du site, fond des cartes, mises en avant)." },
       { emoji: '🔑', text: "Option « Se souvenir de moi » sur l'écran de connexion : les identifiants sont mémorisés localement pour une reconnexion en un clic." },
       { emoji: '🛠️', text: "Maintenance interne : migration du système de stockage vers une infrastructure auto-hébergée pour plus de fiabilité et de performance. Aucun impact sur vos données." },
     ],

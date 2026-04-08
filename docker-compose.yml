@@ -18,7 +18,7 @@ services:
       - "3306:3306"   # Optionnel : accès direct depuis DBeaver / HeidiSQL
     volumes:
       - db_data:/var/lib/mysql
-      - ./migration.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
       interval: 5s

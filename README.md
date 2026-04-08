@@ -30,7 +30,7 @@ Application de suivi du temps de travail en self-hosted, construite avec React +
 
 ### Paramètres utilisateur
 - Modification du nom d'utilisateur et du mot de passe
-- Mode sombre / clair (persisté en base)
+- **Thèmes** : sélecteur Clair / Sombre / Custom, 12 presets (OLED, Cosy, Dracula, Nord, Solarized…) et personnalisation complète des couleurs (primaire, secondaire, accent, fond de page, fond des cartes, mises en avant, police auto/claire/foncée), persistés en base par utilisateur
 - Configuration : heures de travail requises, durée de pause déjeuner, seuil de départ (%)
 - Gestion des heures supplémentaires (compensation, période de calcul configurable)
 - Export des données (JSON / CSV) et import
@@ -61,7 +61,10 @@ TIMETRACK/
 │   ├── hooks/            # useClickOutside
 │   └── lib/              # api-client.ts, changelog.ts, dataTransfer.ts
 ├── docker/               # Dockerfile PHP 8.2 + Apache
-├── migration.sql         # Schéma initial MySQL
+├── db/
+│   ├── schema.sql        # Schéma complet (install fresh)
+│   └── migrations/       # Scripts de mise à jour versionnés
+│       └── migration_1.6.sql
 ├── docker-compose.yml    # Orchestration dev (MySQL + PHP)
 └── vite.config.ts        # Proxy /api → PHP en dev
 ```
@@ -80,7 +83,8 @@ TIMETRACK/
 | `user_preferences` | Préférences par utilisateur (1 ligne par user) |
 | `work_sessions` | Sessions de travail (clock_in, clock_out, pause) |
 
-Le schéma complet est dans [migration.sql](migration.sql).
+Le schéma complet pour une **installation fraîche** est dans [db/schema.sql](db/schema.sql).
+Les **mises à jour** d'une base existante se font via les scripts versionnés dans [db/migrations/](db/migrations/) (ex. `migration_1.6.sql` pour passer en 1.6).
 
 ---
 
@@ -96,7 +100,7 @@ Le schéma complet est dans [migration.sql](migration.sql).
 # 1. Copier la config PHP
 cp api/config.example.php api/config.php
 
-# 2. Lancer MySQL + PHP (migration.sql appliqué automatiquement)
+# 2. Lancer MySQL + PHP (db/schema.sql appliqué automatiquement)
 docker-compose up -d
 
 # 3. Installer les dépendances Node
@@ -159,10 +163,16 @@ define('DB_PASS',    'votre_password');
 define('ALLOWED_ORIGINS', 'https://votre-domaine.com');
 ```
 
-3. Importer `migration.sql` dans votre base MySQL via phpMyAdmin ou la ligne de commande :
+3. **Première installation** : importer `db/schema.sql` dans votre base MySQL via phpMyAdmin ou la ligne de commande :
 
 ```bash
-mysql -u votre_user -p timetrack < migration.sql
+mysql -u votre_user -p timetrack < db/schema.sql
+```
+
+**Mise à jour** d'une base existante : appliquer dans l'ordre les scripts présents dans `db/migrations/` qui sont plus récents que votre version. Exemple pour passer en 1.6 :
+
+```bash
+mysql -u votre_user -p timetrack < db/migrations/migration_1.6.sql
 ```
 
 4. Vérifier que PHP 8.x est actif avec les extensions `pdo_mysql` et `json`.
@@ -205,7 +215,12 @@ display_errors = Off
 
 ## Changelog
 
-### v1.6 — 7 avril 2026
+### v1.6 — 8 avril 2026
+- **Thèmes personnalisables** : sélecteur 3 positions Clair / Sombre / Custom dans les paramètres, animation à l'activation
+- **Mode Custom** : 12 presets prêts à l'emploi (OLED, Cosy, Mocha, Forêt, Océan, Sunset, Dracula, Nord, Solarized, Rose, Clair, Sombre) et personnalisation fine de toutes les couleurs (primaire, secondaire, accent, fond du site, fond des cartes, mises en avant)
+- Couleur de police automatique selon le contraste, avec override Auto / Clair / Foncé
+- Persistance par utilisateur en base (`theme_*` columns), application immédiate sans flash via cache localStorage + variables CSS
+- Réorganisation de la base : `db/schema.sql` (install fresh) + `db/migrations/migration_1.6.sql` (mise à jour d'une base existante)
 - Option « Se souvenir de moi » sur l'écran de connexion : identifiants mémorisés localement pour une reconnexion en un clic
 - Maintenance interne : nettoyage complet des restes Supabase / bolt.new (dépendance npm, dossiers `supabase/` et `.bolt/`, stubs realtime/auth, abonnements no-op, métadonnées OG, mount Docker cassé)
 - Typage strict des appels `supabase.from<T>()` dans `dataTransfer.ts`, `Settings.tsx`, `TimeTracker.tsx`, `EditHistory.tsx` — `npm run typecheck` et `npm run lint` repassent à zéro erreur
