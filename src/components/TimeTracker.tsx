@@ -49,44 +49,6 @@ export function TimeTracker() {
       loadPreferences();
       loadTodaySessions();
       loadAllSessions();
-
-      const sessionsChannel = supabase
-        .channel('work_sessions_changes')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'work_sessions',
-            filter: `user_id=eq.${user.id}`
-          },
-          () => {
-            loadTodaySessions();
-            loadAllSessions();
-          }
-        )
-        .subscribe();
-
-      const preferencesChannel = supabase
-        .channel('user_preferences_changes')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'user_preferences',
-            filter: `user_id=eq.${user.id}`
-          },
-          () => {
-            loadPreferences();
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(sessionsChannel);
-        supabase.removeChannel(preferencesChannel);
-      };
     }
   }, [user]);
 

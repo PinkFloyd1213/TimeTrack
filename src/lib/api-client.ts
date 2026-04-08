@@ -1,10 +1,9 @@
 /**
- * Client API PHP — remplace le client Supabase.
+ * Client API PHP.
  *
- * Expose une interface compatible avec le SDK Supabase utilisé dans l'app :
- *   supabase.from('table').select().eq().order().maybeSingle()
- *   supabase.auth.login/logout/session/update_password
- *   supabase.channel() / supabase.removeChannel()  ← stubs (pas de realtime)
+ * Expose une interface query-builder utilisée dans l'app :
+ *   api.from('table').select().eq().order().maybeSingle()
+ *   api.auth.getSession/signOut/updateUser
  */
 
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? '/api';
@@ -199,26 +198,6 @@ const auth = {
     return { data: { session: user ? { user: { id: user.id as string } } : null } };
   },
 
-  /**
-   * Stub de onAuthStateChange — pas de websocket avec PHP.
-   * La vérification initiale est faite via getSession().
-   */
-  onAuthStateChange(
-    _callback: (event: string, session: { user: { id: string } } | null) => void
-  ) {
-    // Pas de realtime → on ne fait rien.
-    return { data: { subscription: { unsubscribe: () => {} } } };
-  },
-
-  async signInWithPassword({ email: _email, password: _password }: { email: string; password: string }) {
-    // Non utilisé avec notre AuthContext PHP — garde pour compatibilité
-    return { data: { user: null }, error: 'Utilisez AuthContext.login()' };
-  },
-
-  async signUp(_opts: unknown) {
-    return { data: { user: null }, error: 'Utilisez AuthContext.register()' };
-  },
-
   async signOut() {
     await authRequest('logout');
   },
@@ -229,28 +208,6 @@ const auth = {
   },
 };
 
-// ─── Realtime stubs ──────────────────────────────────────────────────────────
-
-function channel(_name: string) {
-  return {
-    on: (_event: string, _config: unknown, _cb: () => void) => ({
-      subscribe: () => ({}),
-    }),
-    subscribe: () => ({}),
-  };
-}
-
-function removeChannel(_ch: unknown) {
-  // no-op
-}
-
-// ─── RPC stub ────────────────────────────────────────────────────────────────
-// get_auth_email_by_username était utilisé dans l'ancien AuthContext.
-// Le nouvel AuthContext appelle directement auth.php → ce stub n'est plus invoqué.
-async function rpc(_fn: string, _params?: unknown) {
-  return { data: null, error: 'RPC non supporté (utiliser auth.php)' };
-}
-
 // ─── Client principal exporté ────────────────────────────────────────────────
 
 export const supabase = {
@@ -258,9 +215,6 @@ export const supabase = {
     return new QueryBuilder<T>(table);
   },
   auth,
-  channel,
-  removeChannel,
-  rpc,
 };
 
 // ─── Helpers Auth directs (utilisés par AuthContext) ─────────────────────────

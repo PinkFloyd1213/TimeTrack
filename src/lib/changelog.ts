@@ -14,6 +14,7 @@ export const CHANGELOG: ChangelogEntry[] = [
     title: 'Connexion & confort',
     items: [
       { emoji: '🔑', text: "Option « Se souvenir de moi » sur l'écran de connexion : les identifiants sont mémorisés localement pour une reconnexion en un clic." },
+      { emoji: '🛠️', text: "Maintenance interne : migration du système de stockage vers une infrastructure auto-hébergée pour plus de fiabilité et de performance. Aucun impact sur vos données." },
     ],
   },
   {

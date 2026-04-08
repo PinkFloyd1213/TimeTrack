@@ -33,11 +33,7 @@ api/config.php
 data_migration/*.json
 
 # Outils locaux
-.bolt/
 .claude/
-
-# Ancienne stack Supabase (historique, plus utilisée)
-supabase/
 
 # Notes personnelles
 notes/

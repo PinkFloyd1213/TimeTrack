@@ -123,17 +123,6 @@ export function EditHistory({ onClose, onUpdate, initialSessions }: EditHistoryP
   useEffect(() => {
     if (!initialSessions && user) {
       loadSessions(period, startDate, endDate);
-
-      const channel = supabase
-        .channel('work_sessions_changes_edit_history')
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'work_sessions', filter: `user_id=eq.${user.id}` },
-          () => { loadSessions(period, startDate, endDate); }
-        )
-        .subscribe();
-
-      return () => { supabase.removeChannel(channel); };
     }
   }, [user, initialSessions, period, startDate, endDate]);
 
