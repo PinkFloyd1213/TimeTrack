@@ -41,7 +41,7 @@ export function Statistics({ sessions, requiredWorkHours }: StatisticsProps) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    let startDate = new Date();
+    const startDate = new Date();
 
     if (period === 'week') {
       const dayOfWeek = today.getDay();

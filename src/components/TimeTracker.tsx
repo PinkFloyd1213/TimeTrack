@@ -115,7 +115,7 @@ export function TimeTracker() {
     if (!user) return;
 
     const { data } = await supabase
-      .from('user_preferences')
+      .from<UserPreferences>('user_preferences')
       .select('*')
       .eq('user_id', user.id)
       .maybeSingle();
@@ -134,7 +134,7 @@ export function TimeTracker() {
 
     const today = new Date().toISOString().split('T')[0];
     const { data } = await supabase
-      .from('work_sessions')
+      .from<WorkSession[]>('work_sessions')
       .select('*')
       .eq('user_id', user.id)
       .eq('date', today)
@@ -151,7 +151,7 @@ export function TimeTracker() {
     if (!user) return;
 
     const { data } = await supabase
-      .from('work_sessions')
+      .from<WorkSession[]>('work_sessions')
       .select('*')
       .eq('user_id', user.id)
       .order('date', { ascending: false })
@@ -284,7 +284,7 @@ export function TimeTracker() {
     const periodStart = getPeriodStart();
 
     let query = supabase
-      .from('work_sessions')
+      .from<WorkSession[]>('work_sessions')
       .select('*')
       .eq('user_id', user.id)
       .lt('date', today.toISOString().split('T')[0]);

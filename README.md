@@ -207,6 +207,9 @@ display_errors = Off
 
 ### v1.6 — 7 avril 2026
 - Option « Se souvenir de moi » sur l'écran de connexion : identifiants mémorisés localement pour une reconnexion en un clic
+- Maintenance interne : nettoyage complet des restes Supabase / bolt.new (dépendance npm, dossiers `supabase/` et `.bolt/`, stubs realtime/auth, abonnements no-op, métadonnées OG, mount Docker cassé)
+- Typage strict des appels `supabase.from<T>()` dans `dataTransfer.ts`, `Settings.tsx`, `TimeTracker.tsx`, `EditHistory.tsx` — `npm run typecheck` et `npm run lint` repassent à zéro erreur
+- Règle ESLint `no-unused-vars` ajoutée avec `argsIgnorePattern: '^_'`
 
 ### v1.5 — 27 mars 2026
 - Lien GitHub dans le pied de page

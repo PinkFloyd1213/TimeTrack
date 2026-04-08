@@ -70,7 +70,7 @@ class QueryBuilder<T = unknown> {
     return this as unknown as QueryBuilder<T>;
   }
 
-  upsert(data: unknown, _opts?: unknown) {
+  upsert(data: unknown, _opts?: { onConflict?: string }) {
     this._action = 'upsert';
     this._data   = data;
     return this as unknown as QueryBuilder<T>;

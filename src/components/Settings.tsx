@@ -46,7 +46,7 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
     if (!user) return;
 
     const { data } = await supabase
-      .from('user_preferences')
+      .from<UserPreferences>('user_preferences')
       .select('*')
       .eq('user_id', user.id)
       .maybeSingle();
@@ -75,7 +75,7 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
     }
 
     const { data: existing } = await supabase
-      .from('users')
+      .from<{ id: string }>('users')
       .select('id')
       .eq('username', newUsername.trim())
       .maybeSingle();
