@@ -117,7 +117,7 @@ switch ($action) {
     // ── DELETE ───────────────────────────────────────────────────────────────
     case 'delete': {
         // Suppression en cascade : work_sessions et user_preferences sont supprimées
-        // automatiquement grâce aux ON DELETE CASCADE définis dans migration.sql.
+        // automatiquement grâce aux ON DELETE CASCADE définis dans db/schema.sql.
         $db->prepare('DELETE FROM users WHERE id = ?')->execute([$userId]);
         json_ok(null);
     }

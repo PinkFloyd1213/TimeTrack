@@ -39,7 +39,7 @@ function getDateRangeBounds(period: Period, startDate: string, endDate: string):
     };
   }
 
-  let start = new Date(today);
+  const start = new Date(today);
   if (period === 'week') {
     const dayOfWeek = today.getDay();
     const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
@@ -106,7 +106,7 @@ export function EditHistory({ onClose, onUpdate, initialSessions }: EditHistoryP
     const bounds = getDateRangeBounds(currentPeriod, currentStartDate, currentEndDate);
 
     let query = supabase
-      .from('work_sessions')
+      .from<WorkSession[]>('work_sessions')
       .select('*')
       .eq('user_id', user.id)
       .order('date', { ascending: false })
@@ -123,17 +123,6 @@ export function EditHistory({ onClose, onUpdate, initialSessions }: EditHistoryP
   useEffect(() => {
     if (!initialSessions && user) {
       loadSessions(period, startDate, endDate);
-
-      const channel = supabase
-        .channel('work_sessions_changes_edit_history')
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'work_sessions', filter: `user_id=eq.${user.id}` },
-          () => { loadSessions(period, startDate, endDate); }
-        )
-        .subscribe();
-
-      return () => { supabase.removeChannel(channel); };
     }
   }, [user, initialSessions, period, startDate, endDate]);
 

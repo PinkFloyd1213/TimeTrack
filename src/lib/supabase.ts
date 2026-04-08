@@ -24,6 +24,15 @@ export interface UserPreferences {
   use_minimum_end_time: boolean;
   last_seen_version: string | null;
   overtime_period: 'week' | 'month' | 'quarter' | 'semester' | 'year' | 'lifetime';
+  theme_mode: 'light' | 'dark' | 'custom';
+  theme_primary: string;
+  theme_secondary: string;
+  theme_accent: string;
+  theme_use_gradient: boolean;
+  theme_app_bg: string | null;
+  theme_surface_bg: string | null;
+  theme_text_color: string | null;
+  theme_highlight_bg: string | null;
   updated_at: string;
 }
 

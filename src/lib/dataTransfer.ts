@@ -1,4 +1,4 @@
-import { supabase, UserPreferences, WorkSession } from './supabase';
+import { supabase, User, UserPreferences, WorkSession } from './supabase';
 
 export interface ExportData {
   version: string;
@@ -14,9 +14,9 @@ export interface ExportData {
 
 export async function exportUserData(userId: string): Promise<ExportData> {
   const [userResult, prefsResult, sessionsResult] = await Promise.all([
-    supabase.from('users').select('id, username, created_at').eq('id', userId).maybeSingle(),
-    supabase.from('user_preferences').select('*').eq('user_id', userId).maybeSingle(),
-    supabase.from('work_sessions').select('*').eq('user_id', userId).order('date', { ascending: true }).order('clock_in', { ascending: true }),
+    supabase.from<Pick<User, 'id' | 'username' | 'created_at'>>('users').select('id, username, created_at').eq('id', userId).maybeSingle(),
+    supabase.from<UserPreferences>('user_preferences').select('*').eq('user_id', userId).maybeSingle(),
+    supabase.from<WorkSession[]>('work_sessions').select('*').eq('user_id', userId).order('date', { ascending: true }).order('clock_in', { ascending: true }),
   ]);
 
   return {
@@ -107,7 +107,7 @@ export async function importUserData(userId: string, data: ExportData): Promise<
 
   if (data.work_sessions.length > 0) {
     const { data: existingSessions } = await supabase
-      .from('work_sessions')
+      .from<Pick<WorkSession, 'date' | 'clock_in'>[]>('work_sessions')
       .select('date, clock_in')
       .eq('user_id', userId);
 

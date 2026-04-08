@@ -1,14 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Clock } from 'lucide-react';
+
+const REMEMBER_KEY = 'tt_remember';
 
 export function Login() {
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login, register } = useAuth();
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(REMEMBER_KEY);
+      if (saved) {
+        const { username: u, password: p } = JSON.parse(saved);
+        setUsername(u || '');
+        setPassword(p || '');
+        setRememberMe(true);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,6 +44,12 @@ export function Login() {
 
     if (!result.success) {
       setError(result.error || 'Une erreur est survenue');
+    } else if (isLogin) {
+      if (rememberMe) {
+        localStorage.setItem(REMEMBER_KEY, JSON.stringify({ username, password }));
+      } else {
+        localStorage.removeItem(REMEMBER_KEY);
+      }
     }
 
     setLoading(false);
@@ -75,6 +98,18 @@ export function Login() {
                 placeholder="Entrez votre mot de passe"
               />
             </div>
+
+            {isLogin && (
+              <label className="flex items-center gap-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded accent-purple-600 cursor-pointer"
+                />
+                <span className="text-sm text-gray-600 dark:text-gray-400">Se souvenir de moi</span>
+              </label>
+            )}
 
             {error && (
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl text-sm">

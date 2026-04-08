@@ -2,6 +2,84 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --brand-primary: #3b82f6;
+  --brand-secondary: #9333ea;
+  --brand-accent: #06b6d4;
+  --brand-fill: linear-gradient(to right, #3b82f6, #9333ea);
+  --brand-fill-br: linear-gradient(to bottom right, #3b82f6, #9333ea);
+}
+
+/* Surcharges en mode "custom" : applique les couleurs choisies par l'utilisateur
+   aux fonds de page, cartes et popups, sans toucher aux modes light/dark. */
+.theme-custom body,
+.theme-custom #root {
+  background: var(--app-bg) !important;
+  color: var(--text-color);
+}
+/* Tue le dégradé plein écran (TimeTracker / Login) au profit de --app-bg */
+.theme-custom .min-h-screen {
+  background-image: none !important;
+  background-color: var(--app-bg) !important;
+}
+.theme-custom .bg-white,
+.theme-custom .dark\:bg-slate-900 {
+  background-color: var(--surface-bg) !important;
+}
+/* Mises en avant secondaires (cartes internes, panneaux pleins) */
+.theme-custom .bg-gray-50,
+.theme-custom .bg-slate-50,
+.theme-custom .dark\:bg-slate-800 {
+  background-color: var(--highlight-bg) !important;
+}
+.theme-custom .from-gray-50,
+.theme-custom .to-gray-100,
+.theme-custom .dark\:from-slate-800,
+.theme-custom .dark\:to-slate-700 {
+  --tw-gradient-from: var(--highlight-bg) !important;
+  --tw-gradient-to: var(--highlight-bg) !important;
+}
+.theme-custom .text-gray-700,
+.theme-custom .text-gray-800,
+.theme-custom .text-gray-900,
+.theme-custom .dark\:text-gray-100,
+.theme-custom .dark\:text-gray-200 {
+  color: var(--text-color) !important;
+}
+
+@layer utilities {
+  .brand-fill {
+    background: var(--brand-fill);
+  }
+  .brand-fill-br {
+    background: var(--brand-fill-br);
+  }
+  .brand-text {
+    color: var(--brand-primary);
+  }
+  .brand-ring {
+    --tw-ring-color: var(--brand-primary);
+  }
+
+  @keyframes pop {
+    0%   { transform: scale(1) rotate(0deg); }
+    40%  { transform: scale(1.35) rotate(-10deg); }
+    70%  { transform: scale(0.92) rotate(6deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  .animate-pop {
+    animation: pop 420ms cubic-bezier(.34,1.56,.64,1);
+  }
+
+  @keyframes panel-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .animate-panel-in {
+    animation: panel-in 220ms ease-out;
+  }
+}
+
 @layer utilities {
   .scrollbar-hide {
     -ms-overflow-style: none;

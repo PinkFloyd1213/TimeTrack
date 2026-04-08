@@ -149,10 +149,19 @@ function cast_prefs(array $row): array
     $bools = [
         'dark_mode', 'notifications_enabled',
         'use_overtime_compensation', 'use_minimum_end_time',
+        'theme_use_gradient',
     ];
     foreach ($bools as $f) {
         $row[$f] = (bool)(int)($row[$f] ?? 0);
     }
+    $row['theme_mode']       = $row['theme_mode']       ?? 'light';
+    $row['theme_primary']    = $row['theme_primary']    ?? '#3b82f6';
+    $row['theme_secondary']  = $row['theme_secondary']  ?? '#9333ea';
+    $row['theme_accent']     = $row['theme_accent']     ?? '#06b6d4';
+    $row['theme_app_bg']     = $row['theme_app_bg']     ?? null;
+    $row['theme_surface_bg'] = $row['theme_surface_bg'] ?? null;
+    $row['theme_text_color']   = $row['theme_text_color']   ?? null;
+    $row['theme_highlight_bg'] = $row['theme_highlight_bg'] ?? null;
     $row['required_work_hours']          = (float)($row['required_work_hours'] ?? 8);
     $row['required_lunch_break_minutes'] = (int)($row['required_lunch_break_minutes'] ?? 30);
     $row['end_of_day_threshold']         = (float)($row['end_of_day_threshold'] ?? 0.8);

@@ -19,7 +19,6 @@ export function TimeTracker() {
   const [preferences, setPreferences] = useState<UserPreferences | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showEditHistory, setShowEditHistory] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const [editingSession, setEditingSession] = useState<string | null>(null);
   const [editClockIn, setEditClockIn] = useState('');
   const [editClockOut, setEditClockOut] = useState('');
@@ -49,54 +48,8 @@ export function TimeTracker() {
       loadPreferences();
       loadTodaySessions();
       loadAllSessions();
-
-      const sessionsChannel = supabase
-        .channel('work_sessions_changes')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'work_sessions',
-            filter: `user_id=eq.${user.id}`
-          },
-          () => {
-            loadTodaySessions();
-            loadAllSessions();
-          }
-        )
-        .subscribe();
-
-      const preferencesChannel = supabase
-        .channel('user_preferences_changes')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'user_preferences',
-            filter: `user_id=eq.${user.id}`
-          },
-          () => {
-            loadPreferences();
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(sessionsChannel);
-        supabase.removeChannel(preferencesChannel);
-      };
     }
   }, [user]);
-
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
 
   useEffect(() => {
     if (!preferences?.notifications_enabled) return;
@@ -153,14 +106,13 @@ export function TimeTracker() {
     if (!user) return;
 
     const { data } = await supabase
-      .from('user_preferences')
+      .from<UserPreferences>('user_preferences')
       .select('*')
       .eq('user_id', user.id)
       .maybeSingle();
 
     if (data) {
       setPreferences(data);
-      setDarkMode(data.dark_mode);
       if (data.last_seen_version !== APP_VERSION) {
         setShowChangelog(true);
       }
@@ -172,7 +124,7 @@ export function TimeTracker() {
 
     const today = new Date().toISOString().split('T')[0];
     const { data } = await supabase
-      .from('work_sessions')
+      .from<WorkSession[]>('work_sessions')
       .select('*')
       .eq('user_id', user.id)
       .eq('date', today)
@@ -189,7 +141,7 @@ export function TimeTracker() {
     if (!user) return;
 
     const { data } = await supabase
-      .from('work_sessions')
+      .from<WorkSession[]>('work_sessions')
       .select('*')
       .eq('user_id', user.id)
       .order('date', { ascending: false })
@@ -322,7 +274,7 @@ export function TimeTracker() {
     const periodStart = getPeriodStart();
 
     let query = supabase
-      .from('work_sessions')
+      .from<WorkSession[]>('work_sessions')
       .select('*')
       .eq('user_id', user.id)
       .lt('date', today.toISOString().split('T')[0]);
@@ -637,7 +589,7 @@ export function TimeTracker() {
       <div className="container mx-auto px-4 py-6 sm:py-8 max-w-4xl">
         <div className="flex justify-between items-center mb-6 sm:mb-8">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-2 sm:p-3 rounded-2xl shadow-lg shrink-0">
+            <div className="brand-fill-br p-2 sm:p-3 rounded-2xl shadow-lg shrink-0">
               <Clock className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
             </div>
             <div className="min-w-0">
@@ -762,7 +714,7 @@ export function TimeTracker() {
               </div>
               <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-4 overflow-hidden mt-4 relative">
                 <div
-                  className="h-full bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-400 dark:to-purple-500 transition-all duration-500 rounded-full relative overflow-hidden"
+                  className="h-full brand-fill transition-all duration-500 rounded-full relative overflow-hidden"
                   style={{ width: `${Math.min(workProgress, 100)}%` }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
@@ -888,7 +840,7 @@ export function TimeTracker() {
                   {editingSession === session.id ? (
                     <div className="space-y-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
+                        <div className="w-8 h-8 brand-fill-br rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
                           {index + 1}
                         </div>
                         <span className="text-gray-700 dark:text-gray-200 font-medium">
@@ -944,7 +896,7 @@ export function TimeTracker() {
                   ) : (
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
+                        <div className="w-8 h-8 brand-fill-br rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
                           {index + 1}
                         </div>
                         <div className="flex-1">
