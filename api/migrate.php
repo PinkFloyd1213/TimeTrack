@@ -5,7 +5,7 @@
  * USAGE (à exécuter depuis le navigateur ou curl sur le serveur Plesk) :
  *   GET  /api/migrate.php?token=VOTRE_TOKEN_SECRET
  *
- * Ce script lit le fichier data_migration/primetime-export-*.json
+ * Ce script lit le fichier data_migration/timetrack-export-*.json
  * et insère les données dans les tables users, user_preferences et work_sessions.
  *
  * ⚠️  SUPPRIMEZ ou DÉSACTIVEZ ce fichier après utilisation !
@@ -26,10 +26,10 @@ header('Content-Type: text/plain; charset=utf-8');
 
 // ── Trouver le fichier JSON ──────────────────────────────────────────────────
 $dataDir = __DIR__ . '/../data_migration';
-$files   = glob("$dataDir/primetime-export-*.json");
+$files   = glob("$dataDir/timetrack-export-*.json");
 
 if (empty($files)) {
-    exit("Aucun fichier primetime-export-*.json trouvé dans data_migration/");
+    exit("Aucun fichier timetrack-export-*.json trouvé dans data_migration/");
 }
 
 // Prendre le plus récent

@@ -2,7 +2,7 @@
 
 Application de suivi du temps de travail en self-hosted, construite avec React + TypeScript (frontend) et PHP + MySQL (backend).
 
-![Version](https://img.shields.io/badge/version-1.6-blue)
+![Version](https://img.shields.io/badge/version-1.6.1-blue)
 ![Stack](https://img.shields.io/badge/stack-React%20%2B%20PHP%20%2B%20MySQL-green)
 
 ---
@@ -214,6 +214,11 @@ display_errors = Off
 ---
 
 ## Changelog
+
+### v1.6.1 — 10 avril 2026
+- **Fix export données** : les requêtes API sont désormais séquentielles (le `Promise.all` causait des blocages de session PHP côté serveur, résultant en un export vide)
+- **Import complet** : l'import restaure maintenant tous les champs thème (`theme_mode`, couleurs, gradient…) et `overtime_period`, avec rétrocompatibilité des anciens fichiers v1.0
+- Renommage des fichiers exportés : `primetime-*` → `timetrack-*`
 
 ### v1.6 — 8 avril 2026
 - **Thèmes personnalisables** : sélecteur 3 positions Clair / Sombre / Custom dans les paramètres, animation à l'activation

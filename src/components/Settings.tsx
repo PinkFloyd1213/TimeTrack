@@ -205,7 +205,7 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
     try {
       const data = await exportUserData(user.id);
       const date = new Date().toISOString().split('T')[0];
-      downloadJSON(data, `primetime-export-${date}.json`);
+      downloadJSON(data, `timetrack-export-${date}.json`);
       setMessage('Export JSON téléchargé avec succès');
     } catch {
       setError("Erreur lors de l'export");
@@ -220,7 +220,7 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
     try {
       const data = await exportUserData(user.id);
       const date = new Date().toISOString().split('T')[0];
-      downloadCSV(data.work_sessions, `primetime-sessions-${date}.csv`);
+      downloadCSV(data.work_sessions, `timetrack-sessions-${date}.csv`);
       setMessage('Export CSV téléchargé avec succès');
     } catch {
       setError("Erreur lors de l'export");

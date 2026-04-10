@@ -13,14 +13,18 @@ export interface ExportData {
 }
 
 export async function exportUserData(userId: string): Promise<ExportData> {
-  const [userResult, prefsResult, sessionsResult] = await Promise.all([
-    supabase.from<Pick<User, 'id' | 'username' | 'created_at'>>('users').select('id, username, created_at').eq('id', userId).maybeSingle(),
-    supabase.from<UserPreferences>('user_preferences').select('*').eq('user_id', userId).maybeSingle(),
-    supabase.from<WorkSession[]>('work_sessions').select('*').eq('user_id', userId).order('date', { ascending: true }).order('clock_in', { ascending: true }),
-  ]);
+  // Requêtes séquentielles : PHP verrouille le fichier session (session_start),
+  // les appels parallèles se bloquent mutuellement sur le serveur Plesk.
+  const userResult = await supabase.from<Pick<User, 'id' | 'username' | 'created_at'>>('users').select('id, username, created_at').eq('id', userId).maybeSingle();
+  const prefsResult = await supabase.from<UserPreferences>('user_preferences').select('*').eq('user_id', userId).maybeSingle();
+  const sessionsResult = await supabase.from<WorkSession[]>('work_sessions').select('*').eq('user_id', userId).order('date', { ascending: true }).order('clock_in', { ascending: true });
+
+  if (userResult.error) console.error('[export] Erreur users:', userResult.error);
+  if (prefsResult.error) console.error('[export] Erreur preferences:', prefsResult.error);
+  if (sessionsResult.error) console.error('[export] Erreur sessions:', sessionsResult.error);
 
   return {
-    version: '1.0',
+    version: '1.1',
     exported_at: new Date().toISOString(),
     user: userResult.data ?? { id: userId, username: '', created_at: '' },
     preferences: prefsResult.data,
@@ -83,19 +87,34 @@ export async function importUserData(userId: string, data: ExportData): Promise<
   }
 
   if (data.preferences) {
+    const prefs = data.preferences;
+    const updateData: Record<string, unknown> = {
+      dark_mode: prefs.dark_mode,
+      required_work_hours: prefs.required_work_hours,
+      required_lunch_break_minutes: prefs.required_lunch_break_minutes,
+      end_of_day_threshold: prefs.end_of_day_threshold,
+      notifications_enabled: prefs.notifications_enabled,
+      weekly_overtime_minutes: prefs.weekly_overtime_minutes,
+      use_overtime_compensation: prefs.use_overtime_compensation,
+      minimum_end_time: prefs.minimum_end_time,
+      use_minimum_end_time: prefs.use_minimum_end_time,
+    };
+
+    // Champs ajoutés en 1.5+ / 1.6+ (absents des anciens exports)
+    if (prefs.overtime_period !== undefined) updateData.overtime_period = prefs.overtime_period;
+    if (prefs.theme_mode !== undefined) updateData.theme_mode = prefs.theme_mode;
+    if (prefs.theme_primary !== undefined) updateData.theme_primary = prefs.theme_primary;
+    if (prefs.theme_secondary !== undefined) updateData.theme_secondary = prefs.theme_secondary;
+    if (prefs.theme_accent !== undefined) updateData.theme_accent = prefs.theme_accent;
+    if (prefs.theme_use_gradient !== undefined) updateData.theme_use_gradient = prefs.theme_use_gradient;
+    if (prefs.theme_app_bg !== undefined) updateData.theme_app_bg = prefs.theme_app_bg;
+    if (prefs.theme_surface_bg !== undefined) updateData.theme_surface_bg = prefs.theme_surface_bg;
+    if (prefs.theme_text_color !== undefined) updateData.theme_text_color = prefs.theme_text_color;
+    if (prefs.theme_highlight_bg !== undefined) updateData.theme_highlight_bg = prefs.theme_highlight_bg;
+
     const { error } = await supabase
       .from('user_preferences')
-      .update({
-        dark_mode: data.preferences.dark_mode,
-        required_work_hours: data.preferences.required_work_hours,
-        required_lunch_break_minutes: data.preferences.required_lunch_break_minutes,
-        end_of_day_threshold: data.preferences.end_of_day_threshold,
-        notifications_enabled: data.preferences.notifications_enabled,
-        weekly_overtime_minutes: data.preferences.weekly_overtime_minutes,
-        use_overtime_compensation: data.preferences.use_overtime_compensation,
-        minimum_end_time: data.preferences.minimum_end_time,
-        use_minimum_end_time: data.preferences.use_minimum_end_time,
-      })
+      .update(updateData)
       .eq('user_id', userId);
 
     if (!error) {
