@@ -7,7 +7,7 @@ import { Statistics } from './Statistics';
 import { EditHistory } from './EditHistory';
 import { ConfirmModal } from './ConfirmModal';
 import { ChangelogModal } from './ChangelogModal';
-import { APP_VERSION } from '../lib/changelog';
+import { APP_VERSION, majorMinor } from '../lib/changelog';
 
 export function TimeTracker() {
   const { user, logout } = useAuth();
@@ -113,7 +113,7 @@ export function TimeTracker() {
 
     if (data) {
       setPreferences(data);
-      if (data.last_seen_version !== APP_VERSION) {
+      if (majorMinor(data.last_seen_version ?? '') !== majorMinor(APP_VERSION)) {
         setShowChangelog(true);
       }
     }

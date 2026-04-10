@@ -1,4 +1,10 @@
-export const APP_VERSION = '1.6';
+export const APP_VERSION = '1.6.1';
+
+/** Extrait la version majeure.mineure (ex: '1.6.1' → '1.6') */
+export function majorMinor(version: string): string {
+  const parts = version.split('.');
+  return parts.length >= 2 ? `${parts[0]}.${parts[1]}` : version;
+}
 
 export interface ChangelogEntry {
   version: string;
