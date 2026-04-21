@@ -2,7 +2,7 @@
 
 Application de suivi du temps de travail en self-hosted, construite avec React + TypeScript (frontend) et PHP + MySQL (backend).
 
-![Version](https://img.shields.io/badge/version-1.6.1-blue)
+![Version](https://img.shields.io/badge/version-1.6.2-blue)
 ![Stack](https://img.shields.io/badge/stack-React%20%2B%20PHP%20%2B%20MySQL-green)
 
 ---
@@ -214,6 +214,11 @@ display_errors = Off
 ---
 
 ## Changelog
+
+### v1.6.2 — 21 avril 2026
+- **Fix compensation heures supp** : la pause déjeuner adaptative ne gonfle plus pour annuler le crédit d'heures supp quand une heure de départ minimum est définie
+- Le bouton calculette persiste maintenant la valeur calculée en base (elle s'appliquait seulement à l'affichage)
+- Le champ d'heures supp se synchronise avec la valeur stockée au chargement
 
 ### v1.6.1 — 10 avril 2026
 - **Fix export données** : les requêtes API sont désormais séquentielles (le `Promise.all` causait des blocages de session PHP côté serveur, résultant en un export vide)
