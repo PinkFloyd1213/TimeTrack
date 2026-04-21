@@ -271,7 +271,7 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center sm:p-4 z-50">
       <div className="bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl shadow-2xl max-w-2xl w-full max-h-[92vh] sm:max-h-[90vh] overflow-y-auto scrollbar-hide">
-        <div className="sticky top-0 brand-fill p-5 sm:p-6 rounded-t-3xl flex justify-between items-center z-10">
+        <div className="sticky top-0 brand-fill p-5 sm:p-6 rounded-t-3xl flex justify-between items-center z-20">
           <h2 className="text-xl sm:text-2xl font-bold text-white">Paramètres</h2>
           <button
             onClick={onClose}

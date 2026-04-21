@@ -219,6 +219,7 @@ display_errors = Off
 - **Fix compensation heures supp** : la pause déjeuner adaptative ne gonfle plus pour annuler le crédit d'heures supp quand une heure de départ minimum est définie
 - Le bouton calculette persiste maintenant la valeur calculée en base (elle s'appliquait seulement à l'affichage)
 - Le champ d'heures supp se synchronise avec la valeur stockée au chargement
+- Fix z-index du header sticky dans la popup Paramètres : les icônes du sélecteur de thème passaient par-dessus lors du scroll
 
 ### v1.6.1 — 10 avril 2026
 - **Fix export données** : les requêtes API sont désormais séquentielles (le `Promise.all` causait des blocages de session PHP côté serveur, résultant en un export vide)
