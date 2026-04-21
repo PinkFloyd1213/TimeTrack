@@ -52,6 +52,12 @@ export function TimeTracker() {
   }, [user]);
 
   useEffect(() => {
+    if (preferences) {
+      setOvertimeInput(formatOvertimeMinutes(preferences.weekly_overtime_minutes));
+    }
+  }, [preferences?.weekly_overtime_minutes]);
+
+  useEffect(() => {
     if (!preferences?.notifications_enabled) return;
 
     const checkNotification = () => {
@@ -302,9 +308,16 @@ export function TimeTracker() {
 
     const daysWorked = new Set(data.map(s => s.date)).size;
     const expectedMinutes = daysWorked * preferences.required_work_hours * 60;
-    const overtimeMinutes = Math.max(0, totalMinutes - expectedMinutes);
+    const overtimeMinutes = Math.max(0, Math.round(totalMinutes - expectedMinutes));
 
-    setOvertimeInput(formatOvertimeMinutes(Math.round(overtimeMinutes)));
+    setOvertimeInput(formatOvertimeMinutes(overtimeMinutes));
+
+    await supabase
+      .from('user_preferences')
+      .update({ weekly_overtime_minutes: overtimeMinutes })
+      .eq('user_id', user.id);
+
+    await loadPreferences();
     setTimeout(() => setIsDetecting(false), 800);
   };
 
@@ -479,11 +492,7 @@ export function TimeTracker() {
 
     const availableMinutes = (minEndTime.getTime() - firstClockIn.getTime()) / (1000 * 60);
 
-    let requiredMinutes = preferences.required_work_hours * 60;
-    if (preferences.use_overtime_compensation && preferences.weekly_overtime_minutes > 0) {
-      requiredMinutes -= preferences.weekly_overtime_minutes;
-    }
-
+    const requiredMinutes = preferences.required_work_hours * 60;
     const adaptedBreak = availableMinutes - requiredMinutes;
     return Math.max(adaptedBreak, defaultBreak);
   };
@@ -513,7 +522,11 @@ export function TimeTracker() {
       const [minEndHours, minEndMinutes] = preferences.minimum_end_time.split(':');
       const minEnd = new Date();
       minEnd.setHours(parseInt(minEndHours), parseInt(minEndMinutes), 0, 0);
-      if (endTime < minEnd) return minEnd;
+      const overtimeCredit = preferences.use_overtime_compensation && preferences.weekly_overtime_minutes > 0
+        ? preferences.weekly_overtime_minutes
+        : 0;
+      const effectiveMinEnd = new Date(minEnd.getTime() - overtimeCredit * 60 * 1000);
+      if (endTime < effectiveMinEnd) return effectiveMinEnd;
     }
 
     return endTime;
