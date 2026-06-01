@@ -1,4 +1,4 @@
-export const APP_VERSION = '1.6.2';
+export const APP_VERSION = '1.7.0';
 
 /** Extrait la version majeure.mineure (ex: '1.6.1' → '1.6') */
 export function majorMinor(version: string): string {
@@ -14,6 +14,16 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
+  {
+    version: '1.7',
+    date: '1 juin 2026',
+    title: 'Horaires variables par jour',
+    items: [
+      { emoji: '🗓️', text: "Nouvelle option dans les paramètres : activez l'« Horaire personnalisé par jour » pour définir un nombre d'heures différent selon le jour de la semaine (Lun→Dim). Idéal pour les temps partiels." },
+      { emoji: '0️⃣', text: "Mettez 0 sur un jour pour indiquer un jour non travaillé. Sans activation, le comportement reste identique avec une seule valeur d'heures par jour." },
+      { emoji: '🧮', text: "Tous les calculs s'adaptent à l'horaire du jour : objectif quotidien, heure de fin estimée, progression, pause déjeuner adaptative, heures supplémentaires sur la période et statistiques." },
+    ],
+  },
   {
     version: '1.6',
     date: '8 avril 2026',

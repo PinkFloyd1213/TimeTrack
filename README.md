@@ -2,7 +2,7 @@
 
 Application de suivi du temps de travail en self-hosted, construite avec React + TypeScript (frontend) et PHP + MySQL (backend).
 
-![Version](https://img.shields.io/badge/version-1.6.2-blue)
+![Version](https://img.shields.io/badge/version-1.7.0-blue)
 ![Stack](https://img.shields.io/badge/stack-React%20%2B%20PHP%20%2B%20MySQL-green)
 
 ---
@@ -32,6 +32,7 @@ Application de suivi du temps de travail en self-hosted, construite avec React +
 - Modification du nom d'utilisateur et du mot de passe
 - **Thèmes** : sélecteur Clair / Sombre / Custom, 12 presets (OLED, Cosy, Dracula, Nord, Solarized…) et personnalisation complète des couleurs (primaire, secondaire, accent, fond de page, fond des cartes, mises en avant, police auto/claire/foncée), persistés en base par utilisateur
 - Configuration : heures de travail requises, durée de pause déjeuner, seuil de départ (%)
+- **Horaires variables par jour** : option « Horaire personnalisé par jour » pour les temps partiels — un nombre d'heures différent pour chaque jour (Lun→Dim, `0` = jour non travaillé). Tous les calculs s'adaptent au jour de la semaine
 - Gestion des heures supplémentaires (compensation, période de calcul configurable)
 - Export des données (JSON / CSV) et import
 - Suppression complète du compte (cascade sur toutes les données)
@@ -84,7 +85,7 @@ TIMETRACK/
 | `work_sessions` | Sessions de travail (clock_in, clock_out, pause) |
 
 Le schéma complet pour une **installation fraîche** est dans [db/schema.sql](db/schema.sql).
-Les **mises à jour** d'une base existante se font via les scripts versionnés dans [db/migrations/](db/migrations/) (ex. `migration_1.6.sql` pour passer en 1.6).
+Les **mises à jour** d'une base existante se font via les scripts versionnés dans [db/migrations/](db/migrations/) (ex. `migration_1.7.sql` pour passer en 1.7 — ajoute les colonnes `use_custom_schedule` et `work_hours_by_day`).
 
 ---
 
@@ -214,6 +215,12 @@ display_errors = Off
 ---
 
 ## Changelog
+
+### v1.7.0 — 1 juin 2026
+- **Horaires variables par jour de la semaine** : nouvelle option « Horaire personnalisé par jour » dans les paramètres, pensée pour les temps partiels — définissez un nombre d'heures différent pour chaque jour (Lun→Dim), `0` pour un jour non travaillé
+- Tous les calculs s'adaptent à l'horaire du jour : objectif quotidien, heure de fin estimée, progression, pause déjeuner adaptative, heures supplémentaires sur la période et statistiques
+- Comportement inchangé par défaut : sans activation de l'option, une seule valeur d'heures s'applique à tous les jours
+- Base de données : nouvelles colonnes `use_custom_schedule` et `work_hours_by_day` (migration `db/migrations/migration_1.7.sql`)
 
 ### v1.6.2 — 21 avril 2026
 - **Fix compensation heures supp** : la pause déjeuner adaptative ne gonfle plus pour annuler le crédit d'heures supp quand une heure de départ minimum est définie

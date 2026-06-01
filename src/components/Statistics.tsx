@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { WorkSession } from '../lib/supabase';
+import { WorkSession, UserPreferences } from '../lib/supabase';
 import { BarChart3, Clock, Coffee, LogIn, LogOut as LogOutIcon, TrendingUp, Calendar } from 'lucide-react';
+import { getRequiredHoursForDate } from '../lib/workHours';
 
 interface StatisticsProps {
   sessions: WorkSession[];
-  requiredWorkHours: number;
+  preferences: UserPreferences;
 }
 
 type Period = 'week' | '7days' | '14days' | '30days';
@@ -29,7 +30,7 @@ interface Stats {
   }>;
 }
 
-export function Statistics({ sessions, requiredWorkHours }: StatisticsProps) {
+export function Statistics({ sessions, preferences }: StatisticsProps) {
   const [period, setPeriod] = useState<Period>('week');
   const [stats, setStats] = useState<Stats | null>(null);
 
@@ -204,7 +205,11 @@ export function Statistics({ sessions, requiredWorkHours }: StatisticsProps) {
     );
   }
 
-  const expectedDailyMinutes = requiredWorkHours * 60;
+  // Objectif (en minutes) attendu pour une date donnée, selon l'horaire du jour.
+  const expectedMinutesForDate = (date: string) => {
+    const [y, m, d] = date.split('-').map(Number);
+    return getRequiredHoursForDate(preferences, new Date(y, m - 1, d)) * 60;
+  };
 
   const minDuration = Math.min(...stats.dailyStats.map(s => s.workDuration));
   const avgDuration = stats.avgWorkDuration;
@@ -285,7 +290,7 @@ export function Statistics({ sessions, requiredWorkHours }: StatisticsProps) {
               const normalizedValue = Math.max(0, Math.min(100,
                 ((day.workDuration - rangeMin) / (rangeMax - rangeMin)) * 100
               ));
-              const isAboveTarget = day.workDuration >= expectedDailyMinutes;
+              const isAboveTarget = day.workDuration >= expectedMinutesForDate(day.date);
 
               return (
                 <div key={index} className="space-y-1">

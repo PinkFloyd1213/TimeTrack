@@ -87,19 +87,32 @@ switch ($action) {
             }
         }
 
+        // Horaires par jour (1.7) : tableau de 7 nombres >= 0, ou null.
+        if (isset($data['work_hours_by_day']) && $data['work_hours_by_day'] !== null) {
+            $sched = $data['work_hours_by_day'];
+            if (!is_array($sched) || count($sched) !== 7) {
+                json_error('work_hours_by_day doit comporter 7 valeurs', 400);
+            }
+            foreach ($sched as $h) {
+                if (!is_numeric($h) || $h < 0) {
+                    json_error('Valeur work_hours_by_day invalide', 400);
+                }
+            }
+        }
+
         $allowed = [
             'dark_mode', 'notifications_enabled', 'required_work_hours',
             'required_lunch_break_minutes', 'end_of_day_threshold',
             'weekly_overtime_minutes', 'use_overtime_compensation',
             'minimum_end_time', 'use_minimum_end_time', 'last_seen_version',
-            'overtime_period',
+            'overtime_period', 'use_custom_schedule', 'work_hours_by_day',
             'theme_mode', 'theme_primary', 'theme_secondary', 'theme_accent',
             'theme_use_gradient', 'theme_app_bg', 'theme_surface_bg', 'theme_text_color', 'theme_highlight_bg',
         ];
         $bools = [
             'dark_mode', 'notifications_enabled',
             'use_overtime_compensation', 'use_minimum_end_time',
-            'theme_use_gradient',
+            'theme_use_gradient', 'use_custom_schedule',
         ];
 
         $setClauses = [];
@@ -109,6 +122,9 @@ switch ($action) {
             if (!in_array($col, $allowed, true)) continue;
             if (in_array($col, $bools, true)) {
                 $val = $val ? 1 : 0;
+            } elseif ($col === 'work_hours_by_day') {
+                // Tableau → JSON (ou NULL si non fourni)
+                $val = is_array($val) ? json_encode(array_map('floatval', $val)) : null;
             }
             $setClauses[] = "`$col` = ?";
             $setParams[]  = $val;

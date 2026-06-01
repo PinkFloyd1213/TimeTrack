@@ -16,6 +16,8 @@ export interface UserPreferences {
   dark_mode: boolean;
   notifications_enabled: boolean;
   required_work_hours: number;
+  use_custom_schedule: boolean;
+  work_hours_by_day: number[] | null;
   required_lunch_break_minutes: number;
   end_of_day_threshold: number;
   weekly_overtime_minutes: number;

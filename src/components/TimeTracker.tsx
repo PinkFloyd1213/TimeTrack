@@ -8,6 +8,7 @@ import { EditHistory } from './EditHistory';
 import { ConfirmModal } from './ConfirmModal';
 import { ChangelogModal } from './ChangelogModal';
 import { APP_VERSION, majorMinor } from '../lib/changelog';
+import { getRequiredHoursForDate } from '../lib/workHours';
 
 export function TimeTracker() {
   const { user, logout } = useAuth();
@@ -306,8 +307,13 @@ export function TimeTracker() {
       }
     });
 
-    const daysWorked = new Set(data.map(s => s.date)).size;
-    const expectedMinutes = daysWorked * preferences.required_work_hours * 60;
+    const workedDates = new Set(data.map(s => s.date));
+    let expectedMinutes = 0;
+    workedDates.forEach((date) => {
+      // `date` est une chaîne 'YYYY-MM-DD' : on la parse en local pour obtenir le bon jour de semaine.
+      const [y, m, d] = date.split('-').map(Number);
+      expectedMinutes += getRequiredHoursForDate(preferences, new Date(y, m - 1, d)) * 60;
+    });
     const overtimeMinutes = Math.max(0, Math.round(totalMinutes - expectedMinutes));
 
     setOvertimeInput(formatOvertimeMinutes(overtimeMinutes));
@@ -492,7 +498,7 @@ export function TimeTracker() {
 
     const availableMinutes = (minEndTime.getTime() - firstClockIn.getTime()) / (1000 * 60);
 
-    const requiredMinutes = preferences.required_work_hours * 60;
+    const requiredMinutes = getRequiredHoursForDate(preferences, currentTime) * 60;
     const adaptedBreak = availableMinutes - requiredMinutes;
     return Math.max(adaptedBreak, defaultBreak);
   };
@@ -502,7 +508,7 @@ export function TimeTracker() {
 
     const { totalMinutes, lunchBreakMinutes } = calculateWorkTime();
     const plannedMinutes = getPlannedFutureMinutes();
-    let requiredMinutes = preferences.required_work_hours * 60;
+    let requiredMinutes = getRequiredHoursForDate(preferences, currentTime) * 60;
 
     if (preferences.use_overtime_compensation && preferences.weekly_overtime_minutes > 0) {
       requiredMinutes -= preferences.weekly_overtime_minutes;
@@ -536,7 +542,7 @@ export function TimeTracker() {
     if (!preferences || !activeSession) return null;
 
     const { totalMinutes } = calculateWorkTime();
-    const requiredMinutes = preferences.required_work_hours * 60;
+    const requiredMinutes = getRequiredHoursForDate(preferences, currentTime) * 60;
 
     if (totalMinutes <= requiredMinutes) return null;
 
@@ -548,7 +554,7 @@ export function TimeTracker() {
 
     const { totalMinutes } = calculateWorkTime();
     const plannedMinutes = getPlannedFutureMinutes();
-    const requiredMinutes = preferences ? preferences.required_work_hours * 60 : 480;
+    const requiredMinutes = preferences ? getRequiredHoursForDate(preferences, currentTime) * 60 : 480;
     const threshold = preferences?.end_of_day_threshold || 0.8;
 
     if (totalMinutes + plannedMinutes >= requiredMinutes * threshold) {
@@ -592,7 +598,7 @@ export function TimeTracker() {
   const { totalMinutes, lunchBreakMinutes } = calculateWorkTime();
   const endTime = calculateEndTime();
   const workProgress = preferences
-    ? (totalMinutes / (preferences.required_work_hours * 60)) * 100
+    ? (totalMinutes / (getRequiredHoursForDate(preferences, currentTime) * 60)) * 100
     : 0;
   const lunchBreakTime = getLunchBreakTime();
   const overtimeMinutes = getOvertimeMinutes();
@@ -718,7 +724,7 @@ export function TimeTracker() {
                     Temps travaillé aujourd'hui
                   </span>
                   <span className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                    Objectif: {formatDuration((preferences?.required_work_hours || 8) * 60)}
+                    Objectif: {formatDuration((preferences ? getRequiredHoursForDate(preferences, currentTime) : 8) * 60)}
                   </span>
                 </div>
                 <span className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-300 dark:to-purple-300 bg-clip-text text-transparent text-center md:text-right">
@@ -976,7 +982,7 @@ export function TimeTracker() {
           <div className="mt-8">
             <Statistics
               sessions={allSessions}
-              requiredWorkHours={preferences.required_work_hours}
+              preferences={preferences}
             />
           </div>
         )}

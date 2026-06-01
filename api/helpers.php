@@ -149,10 +149,17 @@ function cast_prefs(array $row): array
     $bools = [
         'dark_mode', 'notifications_enabled',
         'use_overtime_compensation', 'use_minimum_end_time',
-        'theme_use_gradient',
+        'theme_use_gradient', 'use_custom_schedule',
     ];
     foreach ($bools as $f) {
         $row[$f] = (bool)(int)($row[$f] ?? 0);
+    }
+    // Horaires par jour (1.7) : stocke en JSON, expose un tableau (ou null).
+    if (isset($row['work_hours_by_day']) && $row['work_hours_by_day'] !== null) {
+        $decoded = json_decode($row['work_hours_by_day'], true);
+        $row['work_hours_by_day'] = is_array($decoded) ? $decoded : null;
+    } else {
+        $row['work_hours_by_day'] = null;
     }
     $row['theme_mode']       = $row['theme_mode']       ?? 'light';
     $row['theme_primary']    = $row['theme_primary']    ?? '#3b82f6';
