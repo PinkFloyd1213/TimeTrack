@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS `user_preferences` (
   `dark_mode` BOOLEAN DEFAULT FALSE,
   `notifications_enabled` BOOLEAN DEFAULT FALSE,
   `required_work_hours` DECIMAL(5,2) DEFAULT 8.00,
+  `use_custom_schedule` BOOLEAN DEFAULT FALSE,
+  `work_hours_by_day` TEXT DEFAULT NULL,
   `required_lunch_break_minutes` INT DEFAULT 30,
   `end_of_day_threshold` DECIMAL(4,2) DEFAULT 0.80,
   `weekly_overtime_minutes` INT DEFAULT 0,

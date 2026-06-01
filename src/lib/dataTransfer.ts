@@ -112,6 +112,10 @@ export async function importUserData(userId: string, data: ExportData): Promise<
     if (prefs.theme_text_color !== undefined) updateData.theme_text_color = prefs.theme_text_color;
     if (prefs.theme_highlight_bg !== undefined) updateData.theme_highlight_bg = prefs.theme_highlight_bg;
 
+    // Champs ajoutés en 1.7 (horaires par jour)
+    if (prefs.use_custom_schedule !== undefined) updateData.use_custom_schedule = prefs.use_custom_schedule;
+    if (prefs.work_hours_by_day !== undefined) updateData.work_hours_by_day = prefs.work_hours_by_day;
+
     const { error } = await supabase
       .from('user_preferences')
       .update(updateData)

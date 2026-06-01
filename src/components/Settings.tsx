@@ -3,7 +3,18 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase, UserPreferences } from '../lib/supabase';
 import { exportUserData, downloadJSON, downloadCSV, importUserData, parseImportFile } from '../lib/dataTransfer';
 import { X, Moon, Sun, User, Lock, Clock, Coffee, Bell, Trash2, ArrowRightFromLine, Download, Upload, FileJson, FileText, CheckCircle, AlertCircle, Loader2, Palette, RotateCcw } from 'lucide-react';
-import { useTheme, ThemeMode, DEFAULT_THEME, CUSTOM_DEFAULTS, THEME_PRESETS, resolveHighlightBg } from '../contexts/ThemeContext';
+import { useTheme, ThemeMode, THEME_PRESETS, resolveHighlightBg } from '../contexts/ThemeContext';
+import { WEEKDAY_LABELS } from '../lib/workHours';
+
+// Construit le tableau de 7 champs (Lun→Dim) à partir des préférences.
+// Sans horaire personnalisé enregistré : valeur uniforme en semaine, 0 le week-end.
+function initScheduleStrings(prefs: UserPreferences | null): string[] {
+  if (prefs?.work_hours_by_day && prefs.work_hours_by_day.length === 7) {
+    return prefs.work_hours_by_day.map((h) => h.toString());
+  }
+  const uniform = (prefs?.required_work_hours ?? 8).toString();
+  return [uniform, uniform, uniform, uniform, uniform, '0', '0'];
+}
 
 interface SettingsProps {
   onClose: () => void;
@@ -12,12 +23,13 @@ interface SettingsProps {
 
 export function Settings({ onClose, initialPreferences }: SettingsProps) {
   const { user, logout } = useAuth();
-  const theme = useTheme();
   const [preferences, setPreferences] = useState<UserPreferences | null>(initialPreferences);
   const [newUsername, setNewUsername] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [workHours, setWorkHours] = useState(initialPreferences?.required_work_hours.toString() || '8');
+  const [useCustomSchedule, setUseCustomSchedule] = useState(initialPreferences?.use_custom_schedule || false);
+  const [workHoursByDay, setWorkHoursByDay] = useState<string[]>(initScheduleStrings(initialPreferences));
   const [lunchBreak, setLunchBreak] = useState(initialPreferences?.required_lunch_break_minutes.toString() || '30');
   const [endOfDayThreshold, setEndOfDayThreshold] = useState(initialPreferences?.end_of_day_threshold ? (initialPreferences.end_of_day_threshold * 100).toString() : '80');
   const [minimumEndTime, setMinimumEndTime] = useState(initialPreferences?.minimum_end_time || '');
@@ -56,6 +68,8 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
       setPreferences(data);
       setNotificationsEnabled(data.notifications_enabled || false);
       setWorkHours(data.required_work_hours.toString());
+      setUseCustomSchedule(data.use_custom_schedule || false);
+      setWorkHoursByDay(initScheduleStrings(data));
       setLunchBreak(data.required_lunch_break_minutes.toString());
       setEndOfDayThreshold(data.end_of_day_threshold ? (data.end_of_day_threshold * 100).toString() : '80');
       setMinimumEndTime(data.minimum_end_time || '');
@@ -145,10 +159,21 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
       return;
     }
 
+    const scheduleHours = workHoursByDay.map((h) => parseFloat(h));
+    if (useCustomSchedule && scheduleHours.some((h) => isNaN(h) || h < 0 || h > 24)) {
+      setError('Chaque horaire journalier doit être un nombre valide (0-24)');
+      return;
+    }
+    // On enregistre toujours le tableau (NaN → 0) pour conserver les valeurs
+    // même lorsque l'horaire personnalisé est désactivé.
+    const safeSchedule = scheduleHours.map((h) => (isNaN(h) ? 0 : h));
+
     const { error: updateError } = await supabase
       .from('user_preferences')
       .update({
         required_work_hours: hours,
+        use_custom_schedule: useCustomSchedule,
+        work_hours_by_day: safeSchedule,
         required_lunch_break_minutes: minutes,
         end_of_day_threshold: threshold,
         minimum_end_time: minimumEndTime.trim() || null,
@@ -391,18 +416,79 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
               <h3 className="text-lg font-semibold">Préférences de travail</h3>
             </div>
             <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-100 mb-2">
-                  Heures de travail requises par jour
-                </label>
-                <input
-                  type="number"
-                  step="0.5"
-                  value={workHours}
-                  onChange={(e) => setWorkHours(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-4 focus:ring-purple-500/20 transition-all outline-none text-base"
-                />
+              {!useCustomSchedule && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-100 mb-2">
+                    Heures de travail requises par jour
+                  </label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    value={workHours}
+                    onChange={(e) => setWorkHours(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-4 focus:ring-purple-500/20 transition-all outline-none text-base"
+                  />
+                </div>
+              )}
+
+              <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-slate-800 dark:to-slate-700 rounded-2xl">
+                <div className="flex items-center gap-3">
+                  <Clock className={`w-6 h-6 ${useCustomSchedule ? 'text-blue-600 dark:text-blue-300' : 'text-gray-400'}`} />
+                  <div>
+                    <div className="font-medium text-gray-800 dark:text-gray-100">
+                      Horaire personnalisé par jour
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      Pour les temps partiels : heures différentes selon le jour
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setUseCustomSchedule(!useCustomSchedule)}
+                  className={`relative w-16 h-8 rounded-full transition-all shrink-0 ${
+                    useCustomSchedule
+                      ? 'bg-gradient-to-r from-blue-500 to-cyan-600'
+                      : 'bg-gray-300'
+                  }`}
+                >
+                  <div
+                    className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-lg transition-transform ${
+                      useCustomSchedule ? 'transform translate-x-8' : ''
+                    }`}
+                  />
+                </button>
               </div>
+
+              {useCustomSchedule && (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
+                    {WEEKDAY_LABELS.map((label, i) => (
+                      <div key={label} className="flex flex-col items-start">
+                        <label className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
+                          {label}
+                        </label>
+                        <input
+                          type="number"
+                          step="0.5"
+                          min="0"
+                          max="24"
+                          value={workHoursByDay[i]}
+                          onChange={(e) => {
+                            const next = [...workHoursByDay];
+                            next[i] = e.target.value;
+                            setWorkHoursByDay(next);
+                          }}
+                          className="w-full px-2 py-2 rounded-xl border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 transition-all outline-none text-sm text-left"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Heures par jour (Lun→Dim). Mettez 0 pour un jour non travaillé. L'objectif, l'heure de fin, les heures supplémentaires et les statistiques s'adaptent au jour de la semaine.
+                  </p>
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-100 mb-2">
                   <div className="flex items-center gap-2">
