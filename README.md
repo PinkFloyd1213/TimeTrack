@@ -33,6 +33,7 @@ Application de suivi du temps de travail en self-hosted, construite avec React +
 - **Thèmes** : sélecteur Clair / Sombre / Custom, 12 presets (OLED, Cosy, Dracula, Nord, Solarized…) et personnalisation complète des couleurs (primaire, secondaire, accent, fond de page, fond des cartes, mises en avant, police auto/claire/foncée), persistés en base par utilisateur
 - Configuration : heures de travail requises, durée de pause déjeuner, seuil de départ (%)
 - **Horaires variables par jour** : option « Horaire personnalisé par jour » pour les temps partiels — un nombre d'heures différent pour chaque jour (Lun→Dim, `0` = jour non travaillé). Tous les calculs s'adaptent au jour de la semaine
+- **Journées sans pause de midi** : dans l'horaire personnalisé, une case sous chaque jour déclare une journée continue — l'heure de sortie est alors calculée sans pause déjeuner (ex. demi-journée de 4,5 h finissant à midi)
 - Gestion des heures supplémentaires (compensation, période de calcul configurable)
 - Export des données (JSON / CSV) et import
 - Suppression complète du compte (cascade sur toutes les données)
@@ -215,6 +216,12 @@ display_errors = Off
 ---
 
 ## Changelog
+
+### v1.7.1 — 4 juin 2026
+- **Journées sans pause de midi** : dans l'horaire personnalisé par jour, une case à cocher sous chaque jour permet de déclarer une journée continue (sans pause déjeuner) — l'heure de sortie estimée n'ajoute plus de pause, idéal pour les demi-journées de temps partiel (ex. 4,5 h finissant à midi)
+- Sur un jour coché, l'écran « Pause déjeuner en cours / Dépassement de pause » ne se déclenche plus
+- Comportement inchangé par défaut : sans case cochée, la pause déjeuner s'applique comme avant
+- Base de données : nouvelle colonne `no_lunch_break_by_day` (migration `db/migrations/migration_1.7.1.sql`)
 
 ### v1.7.0 — 1 juin 2026
 - **Horaires variables par jour de la semaine** : nouvelle option « Horaire personnalisé par jour » dans les paramètres, pensée pour les temps partiels — définissez un nombre d'heures différent pour chaque jour (Lun→Dim), `0` pour un jour non travaillé

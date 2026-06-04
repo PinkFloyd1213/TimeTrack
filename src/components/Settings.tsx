@@ -16,6 +16,14 @@ function initScheduleStrings(prefs: UserPreferences | null): string[] {
   return [uniform, uniform, uniform, uniform, uniform, '0', '0'];
 }
 
+// Tableau de 7 cases « pas de pause de midi » (Lun→Dim). Par défaut : pause partout.
+function initNoLunchFlags(prefs: UserPreferences | null): boolean[] {
+  if (prefs?.no_lunch_break_by_day && prefs.no_lunch_break_by_day.length === 7) {
+    return prefs.no_lunch_break_by_day.map(Boolean);
+  }
+  return [false, false, false, false, false, false, false];
+}
+
 interface SettingsProps {
   onClose: () => void;
   initialPreferences: UserPreferences | null;
@@ -30,6 +38,7 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
   const [workHours, setWorkHours] = useState(initialPreferences?.required_work_hours.toString() || '8');
   const [useCustomSchedule, setUseCustomSchedule] = useState(initialPreferences?.use_custom_schedule || false);
   const [workHoursByDay, setWorkHoursByDay] = useState<string[]>(initScheduleStrings(initialPreferences));
+  const [noLunchByDay, setNoLunchByDay] = useState<boolean[]>(initNoLunchFlags(initialPreferences));
   const [lunchBreak, setLunchBreak] = useState(initialPreferences?.required_lunch_break_minutes.toString() || '30');
   const [endOfDayThreshold, setEndOfDayThreshold] = useState(initialPreferences?.end_of_day_threshold ? (initialPreferences.end_of_day_threshold * 100).toString() : '80');
   const [minimumEndTime, setMinimumEndTime] = useState(initialPreferences?.minimum_end_time || '');
@@ -70,6 +79,7 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
       setWorkHours(data.required_work_hours.toString());
       setUseCustomSchedule(data.use_custom_schedule || false);
       setWorkHoursByDay(initScheduleStrings(data));
+      setNoLunchByDay(initNoLunchFlags(data));
       setLunchBreak(data.required_lunch_break_minutes.toString());
       setEndOfDayThreshold(data.end_of_day_threshold ? (data.end_of_day_threshold * 100).toString() : '80');
       setMinimumEndTime(data.minimum_end_time || '');
@@ -174,6 +184,7 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
         required_work_hours: hours,
         use_custom_schedule: useCustomSchedule,
         work_hours_by_day: safeSchedule,
+        no_lunch_break_by_day: noLunchByDay,
         required_lunch_break_minutes: minutes,
         end_of_day_threshold: threshold,
         minimum_end_time: minimumEndTime.trim() || null,
@@ -481,11 +492,30 @@ export function Settings({ onClose, initialPreferences }: SettingsProps) {
                           }}
                           className="w-full px-2 py-2 rounded-xl border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 transition-all outline-none text-sm text-left"
                         />
+                        <label
+                          className="flex items-center gap-1 mt-1.5 cursor-pointer select-none"
+                          title="Journée continue : aucune pause de midi n'est comptée ce jour-là"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={noLunchByDay[i]}
+                            onChange={(e) => {
+                              const next = [...noLunchByDay];
+                              next[i] = e.target.checked;
+                              setNoLunchByDay(next);
+                            }}
+                            className="w-3.5 h-3.5 rounded border-gray-300 dark:border-slate-600 accent-purple-600 cursor-pointer"
+                          />
+                          <Coffee className={`w-3.5 h-3.5 ${noLunchByDay[i] ? 'text-gray-300 dark:text-gray-600' : 'text-orange-500 dark:text-orange-400'}`} />
+                        </label>
                       </div>
                     ))}
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     Heures par jour (Lun→Dim). Mettez 0 pour un jour non travaillé. L'objectif, l'heure de fin, les heures supplémentaires et les statistiques s'adaptent au jour de la semaine.
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Cochez la case sous un jour pour une <span className="font-medium">journée sans pause de midi</span> (journée continue) : l'heure de sortie est alors calculée sans pause déjeuner.
                   </p>
                 </div>
               )}

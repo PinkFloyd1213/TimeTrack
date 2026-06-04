@@ -100,12 +100,20 @@ switch ($action) {
             }
         }
 
+        // Pause de midi par jour (1.7.1) : tableau de 7 booleens, ou null.
+        if (isset($data['no_lunch_break_by_day']) && $data['no_lunch_break_by_day'] !== null) {
+            $noLunch = $data['no_lunch_break_by_day'];
+            if (!is_array($noLunch) || count($noLunch) !== 7) {
+                json_error('no_lunch_break_by_day doit comporter 7 valeurs', 400);
+            }
+        }
+
         $allowed = [
             'dark_mode', 'notifications_enabled', 'required_work_hours',
             'required_lunch_break_minutes', 'end_of_day_threshold',
             'weekly_overtime_minutes', 'use_overtime_compensation',
             'minimum_end_time', 'use_minimum_end_time', 'last_seen_version',
-            'overtime_period', 'use_custom_schedule', 'work_hours_by_day',
+            'overtime_period', 'use_custom_schedule', 'work_hours_by_day', 'no_lunch_break_by_day',
             'theme_mode', 'theme_primary', 'theme_secondary', 'theme_accent',
             'theme_use_gradient', 'theme_app_bg', 'theme_surface_bg', 'theme_text_color', 'theme_highlight_bg',
         ];
@@ -125,6 +133,9 @@ switch ($action) {
             } elseif ($col === 'work_hours_by_day') {
                 // Tableau → JSON (ou NULL si non fourni)
                 $val = is_array($val) ? json_encode(array_map('floatval', $val)) : null;
+            } elseif ($col === 'no_lunch_break_by_day') {
+                // Tableau de booleens → JSON (ou NULL si non fourni)
+                $val = is_array($val) ? json_encode(array_map('boolval', $val)) : null;
             }
             $setClauses[] = "`$col` = ?";
             $setParams[]  = $val;
