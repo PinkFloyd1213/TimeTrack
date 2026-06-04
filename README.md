@@ -2,7 +2,7 @@
 
 Application de suivi du temps de travail en self-hosted, construite avec React + TypeScript (frontend) et PHP + MySQL (backend).
 
-![Version](https://img.shields.io/badge/version-1.7.0-blue)
+![Version](https://img.shields.io/badge/version-1.7.1-blue)
 ![Stack](https://img.shields.io/badge/stack-React%20%2B%20PHP%20%2B%20MySQL-green)
 
 ---
@@ -86,7 +86,7 @@ TIMETRACK/
 | `work_sessions` | Sessions de travail (clock_in, clock_out, pause) |
 
 Le schéma complet pour une **installation fraîche** est dans [db/schema.sql](db/schema.sql).
-Les **mises à jour** d'une base existante se font via les scripts versionnés dans [db/migrations/](db/migrations/) (ex. `migration_1.7.sql` pour passer en 1.7 — ajoute les colonnes `use_custom_schedule` et `work_hours_by_day`).
+Les **mises à jour** d'une base existante se font via les scripts versionnés dans [db/migrations/](db/migrations/) (ex. `migration_1.7.1.sql` pour passer en 1.7.1 — ajoute la colonne `no_lunch_break_by_day`).
 
 ---
 
