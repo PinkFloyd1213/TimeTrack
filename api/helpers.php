@@ -161,6 +161,13 @@ function cast_prefs(array $row): array
     } else {
         $row['work_hours_by_day'] = null;
     }
+    // Pause de midi par jour (1.7.1) : stocke en JSON, expose un tableau de booleens (ou null).
+    if (isset($row['no_lunch_break_by_day']) && $row['no_lunch_break_by_day'] !== null) {
+        $decoded = json_decode($row['no_lunch_break_by_day'], true);
+        $row['no_lunch_break_by_day'] = is_array($decoded) ? array_map('boolval', $decoded) : null;
+    } else {
+        $row['no_lunch_break_by_day'] = null;
+    }
     $row['theme_mode']       = $row['theme_mode']       ?? 'light';
     $row['theme_primary']    = $row['theme_primary']    ?? '#3b82f6';
     $row['theme_secondary']  = $row['theme_secondary']  ?? '#9333ea';

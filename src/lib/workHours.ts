@@ -26,3 +26,19 @@ export function getRequiredHoursForDate(
   }
   return prefs.required_work_hours;
 }
+
+/**
+ * Y a-t-il une pause de midi pour la date donnée ? (1.7.1)
+ * Avec l'horaire personnalisé, chaque jour peut être marqué « sans pause »
+ * (journée continue, ex. demi-journée de temps partiel) : dans ce cas la
+ * pause déjeuner n'entre plus dans le calcul de l'heure de sortie.
+ */
+export function hasLunchBreakForDate(
+  prefs: Pick<UserPreferences, 'use_custom_schedule' | 'no_lunch_break_by_day'>,
+  date: Date
+): boolean {
+  if (prefs.use_custom_schedule && prefs.no_lunch_break_by_day) {
+    return !prefs.no_lunch_break_by_day[weekdayIndex(date)];
+  }
+  return true;
+}

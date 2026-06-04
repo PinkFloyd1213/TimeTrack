@@ -116,6 +116,9 @@ export async function importUserData(userId: string, data: ExportData): Promise<
     if (prefs.use_custom_schedule !== undefined) updateData.use_custom_schedule = prefs.use_custom_schedule;
     if (prefs.work_hours_by_day !== undefined) updateData.work_hours_by_day = prefs.work_hours_by_day;
 
+    // Champs ajoutés en 1.7.1 (pause de midi par jour)
+    if (prefs.no_lunch_break_by_day !== undefined) updateData.no_lunch_break_by_day = prefs.no_lunch_break_by_day;
+
     const { error } = await supabase
       .from('user_preferences')
       .update(updateData)

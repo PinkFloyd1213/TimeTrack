@@ -8,7 +8,7 @@ import { EditHistory } from './EditHistory';
 import { ConfirmModal } from './ConfirmModal';
 import { ChangelogModal } from './ChangelogModal';
 import { APP_VERSION, majorMinor } from '../lib/changelog';
-import { getRequiredHoursForDate } from '../lib/workHours';
+import { getRequiredHoursForDate, hasLunchBreakForDate } from '../lib/workHours';
 
 export function TimeTracker() {
   const { user, logout } = useAuth();
@@ -483,6 +483,9 @@ export function TimeTracker() {
   const getEffectiveLunchBreakMinutes = () => {
     if (!preferences) return 30;
 
+    // Jour sans pause de midi (1.7.1) : aucune pause n'est attendue ni comptée.
+    if (!hasLunchBreakForDate(preferences, currentTime)) return 0;
+
     const defaultBreak = preferences.required_lunch_break_minutes;
 
     const pastSessions = todaySessions.filter(
@@ -551,6 +554,9 @@ export function TimeTracker() {
 
   const isOnLunchBreak = () => {
     if (todaySessions.length === 0 || activeSession) return false;
+
+    // Jour sans pause de midi (1.7.1) : pas d'écran « Pause déjeuner en cours ».
+    if (preferences && !hasLunchBreakForDate(preferences, currentTime)) return false;
 
     const { totalMinutes } = calculateWorkTime();
     const plannedMinutes = getPlannedFutureMinutes();

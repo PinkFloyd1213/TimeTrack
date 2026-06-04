@@ -18,6 +18,7 @@ export interface UserPreferences {
   required_work_hours: number;
   use_custom_schedule: boolean;
   work_hours_by_day: number[] | null;
+  no_lunch_break_by_day: boolean[] | null;
   required_lunch_break_minutes: number;
   end_of_day_threshold: number;
   weekly_overtime_minutes: number;
